@@ -1,0 +1,11 @@
+configfile : "config.yaml"
+
+rule ploup:
+    input:
+    output:
+        "out.txt"
+    shell:
+        "Rscript rules/hello.r {config[PATH_TO_ALIGNED_FILE]} > {output}"
+
+if config["MULTIPLEXING"] :
+    print("Starting MULTIPLEXING")

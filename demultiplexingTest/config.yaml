@@ -1,0 +1,3 @@
+PATH_TO_ALIGNED_FILE: /shared/project/placentatlas/
+
+MULTIPLEXING: True #Must be True if you're using multiplexing, False otherwise
