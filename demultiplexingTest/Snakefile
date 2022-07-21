@@ -1,7 +1,14 @@
 configfile : "config.yaml"
 
-rule ploup:
-    input:
+## TODO INSERT HERE A CONTROL OF THE CONFIG FILE
+
+
+
+
+
+## DEMULTIPLEXING IF NEEDED (and first filter on cells)
+rule checkConfigFile:
+    input: "config.yaml"
     output:
         "out.txt"
     shell:
