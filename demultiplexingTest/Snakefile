@@ -15,4 +15,4 @@ rule checkConfigFile:
         "Rscript rules/hello.r {config[PATH_TO_ALIGNED_FILE]} > {output}"
 
 if config["MULTIPLEXING"] :
-    print("Starting MULTIPLEXING")
+    print("Starting DEMULTIPLEXING")
