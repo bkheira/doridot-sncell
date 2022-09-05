@@ -1,9 +1,6 @@
-PATH_TO_ALIGNED_FILE: "/shared/projects/placentatlas/CellRangerHashtagSnRNAseqCBA/"
-
 OUTPUT_DIRECTORY: outputs/
-OUTPUT_PREFIX: superexperiment
 
-SAMPLE_INFORMATIONS_CSV_FILEPATH : ???
+SAMPLES_INFORMATIONS_PATH: "/Users/asilvert/Programmation/Doridot/doridot-sncell/samples_info.tsv"
 
 ## MULTIPLEXING STEP ##
 

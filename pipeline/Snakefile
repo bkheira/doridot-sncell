@@ -1,18 +1,35 @@
+import pandas as pd
 configfile : "config.yaml"
 
+
+
 ## TODO INSERT HERE A CONTROL OF THE CONFIG FILE
+## TODO INSERT HERE A CONTROL OF THE SAMPLE_INFORMATIONS
+
+samples_info = pd.read_csv(config["SAMPLES_INFORMATIONS_PATH"], sep="\t")
+multiplexing_groups = samples_info.multiplexing_group_name.unique().tolist()
 
 
 
+print("********************************")
+print(str(config["EMPTY_DROPLETS_EARLY_FILTERS"][1]))
+print("********************************")
 
 
 ## DEMULTIPLEXING IF NEEDED (and first filter on cells)
-rule checkConfigFile:
-    input: "config.yaml"
-    output:
-        "out.txt"
-    shell:
-        "Rscript rules/hello.r {config[PATH_TO_ALIGNED_FILE]} > {output}"
 
-if config["MULTIPLEXING"] :
-    print("Starting DEMULTIPLEXING")
+
+rule preparing_demultiplexing :
+    output :
+        os.path.join(config["OUTPUT_DIRECTORY"], "{multiplexing_group}.tsv")
+    run :
+        temp = samples_info[ samples_info.multiplexing_group_name == wildcards["multiplexing_group"]]
+        temp.to_csv(output[0], sep="\t")
+
+rule Demultiplexing:
+    input :
+        os.path.join(config["OUTPUT_DIRECTORY"], "{multiplexing_group}.tsv")
+    output :
+        "out_{multiplexing_group}.txt"
+    shell :
+        'Rscript rules/demultiplexing.R {input} {output} {config[EMPTY_DROPLETS_EARLY_FILTERS]} > {output}'

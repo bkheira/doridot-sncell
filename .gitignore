@@ -1,6 +1,7 @@
 #### Personal part ####
 
 PersonalNotes/
+data/
 
 *.snakemake
 
