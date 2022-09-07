@@ -1,3 +1,15 @@
 [1] "outputs/pouloup.tsv" "out_pouloup.txt"     "200"                
 [4] "20"                 
 [1] "20"
+   V1 sample_name sample_code path_to_mtx_filtered_directory
+1:  0         2-2        2_2a ../data/CtrlCBA-2Bis/filtered/
+2:  1         2-3        2_3a ../data/CtrlCBA-2Bis/filtered/
+3:  2         5-2        5_2a ../data/CtrlCBA-2Bis/filtered/
+4:  3         5-5        5_5a ../data/CtrlCBA-2Bis/filtered/
+   path_to_mtx_raw_directory multiplexing_group_name
+1: ../data/CtrlCBA-2Bis/raw/                 pouloup
+2: ../data/CtrlCBA-2Bis/raw/                 pouloup
+3: ../data/CtrlCBA-2Bis/raw/                 pouloup
+4: ../data/CtrlCBA-2Bis/raw/                 pouloup
+[1] "../data/CtrlCBA-2Bis/filtered/barcodes.tsv.gz"
+[1] "../data/CtrlCBA-2Bis/filtered/matrix.mtx.gz"

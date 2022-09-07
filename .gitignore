@@ -2,6 +2,8 @@
 
 PersonalNotes/
 data/
+outputs/
+demultiplexing_comparison/
 
 *.snakemake
 

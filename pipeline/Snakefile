@@ -16,7 +16,7 @@ print(str(config["EMPTY_DROPLETS_EARLY_FILTERS"][1]))
 print("********************************")
 
 
-## DEMULTIPLEXING IF NEEDED (and first filter on cells)
+##c DEMULTIPLEXING IF NEEDED (and first filter on cells)
 
 
 rule preparing_demultiplexing :
@@ -32,4 +32,4 @@ rule Demultiplexing:
     output :
         "out_{multiplexing_group}.txt"
     shell :
-        'Rscript rules/demultiplexing.R {input} {output} {config[EMPTY_DROPLETS_EARLY_FILTERS]} > {output}'
+        'Rscript rules/demultiplexing_ludivine.R {input} {output} {config[EMPTY_DROPLETS_EARLY_FILTERS]} > {output}'
