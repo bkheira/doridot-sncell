@@ -9,27 +9,39 @@ configfile : "config.yaml"
 samples_info = pd.read_csv(config["SAMPLES_INFORMATIONS_PATH"], sep="\t")
 multiplexing_groups = samples_info.multiplexing_group_name.unique().tolist()
 
+## QC IS NEEDED BEFORE MULTIPLEXING
 
+rule all :
+    input :
+        os.path.join(config["OUTPUT_DIRECTORY"], "Demultiplexing", "pouloup", "pouloup_postQC_postDemultiplexing.rds"),
+        os.path.join(config["OUTPUT_DIRECTORY"], "Demultiplexing", "blap", "blap_postQC_postDemultiplexing.rds")
 
-print("********************************")
-print(str(config["EMPTY_DROPLETS_EARLY_FILTERS"][1]))
-print("********************************")
-
-
-##c DEMULTIPLEXING IF NEEDED (and first filter on cells)
-
-
-rule preparing_demultiplexing :
+rule preparing_pipeline :
     output :
         os.path.join(config["OUTPUT_DIRECTORY"], "{multiplexing_group}.tsv")
     run :
         temp = samples_info[ samples_info.multiplexing_group_name == wildcards["multiplexing_group"]]
         temp.to_csv(output[0], sep="\t")
 
-rule Demultiplexing:
+
+rule quality_control :
     input :
         os.path.join(config["OUTPUT_DIRECTORY"], "{multiplexing_group}.tsv")
     output :
-        "out_{multiplexing_group}.txt"
+        dir = directory(os.path.join(config["OUTPUT_DIRECTORY"],"QC", "{multiplexing_group}")),
+        file = os.path.join(config["OUTPUT_DIRECTORY"],"QC", "{multiplexing_group}", "{multiplexing_group}_PostQC.rds")
     shell :
-        'Rscript rules/demultiplexing_ludivine.R {input} {output} {config[EMPTY_DROPLETS_EARLY_FILTERS]} > {output}'
+        'mkdir -p {output.dir} && Rscript rules/qualityControl.R {input} {output.file} {config[MIN_RNA_PER_DROPLET]} {config[MAX_RNA_PER_DROPLET]} {config[MIN_FEATURES_PER_DROPLET]} {config[MAX_FEATURES_PER_DROPLET]} {config[MAX_PERCENT_MT_READS]} {config[SPECIE]} {output.dir}'
+
+
+rule demultiplexing:
+    input :
+        sampleinfo = os.path.join(config["OUTPUT_DIRECTORY"], "{multiplexing_group}.tsv"),
+        rdsfile = os.path.join(config["OUTPUT_DIRECTORY"],"QC", "{multiplexing_group}", "{multiplexing_group}_PostQC.rds")
+    output :
+        dir = directory(os.path.join(config["OUTPUT_DIRECTORY"], "Demultiplexing", "{multiplexing_group}")),
+        file = os.path.join(config["OUTPUT_DIRECTORY"], "Demultiplexing", "{multiplexing_group}","{multiplexing_group}_postQC_postDemultiplexing.rds")
+    params :
+        outputDir = os.path.join(config["OUTPUT_DIRECTORY"], "Demultiplexing", "{multiplexing_group}")
+    shell :
+        'mkdir -p {output.dir} && Rscript rules/demultiplexing.R {input.rdsfile} {input.sampleinfo} {output.file} {params.outputDir}'

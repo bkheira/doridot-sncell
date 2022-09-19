@@ -7,4 +7,4 @@ sample_name	sample_code	path_to_mtx_filtered_directory	path_to_mtx_raw_directory
 1-2	1_2b	../data/CBAxBalbc/filtered/	../data/CBAxBalbc/raw/	blap
 1-3	1_3b	../data/CBAxBalbc/filtered/	../data/CBAxBalbc/raw/	blap
 1-4	1_4b	../data/CBAxBalbc/filtered/	../data/CBAxBalbc/raw/	blap
-1-5	1_5b_mentrual_blood	../data/CBAxBalbc/filtered/	../data/CBAxBalbc/raw/	blap
+1-5-menstrualBlood	1_5b_mentrual_blood	../data/CBAxBalbc/filtered/	../data/CBAxBalbc/raw/	blap

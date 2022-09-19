@@ -4,92 +4,144 @@
 ### By Alix Silvert
 ### Based on https://satijalab.org/seurat/articles/hashing_vignette.html Compiled in 2022-01-11
 
+##################
+### INITIATING ###
+##################
 
 library(Matrix)
-library(data.table)
 library(ggplot2)
 library(Seurat)
+library(dplyr)
 
 args = commandArgs(trailingOnly=TRUE)
 
-print(args)
-print(args[4])
+rds_file_path = args[1]
+samples_info_path = args[2]
+output = args[3]
+outputDirectory = args[4]
 
-
-# samples_info_path = args[1]
-# output = args[2]
-# filterthreshold= c(args[3], args[4])
-
-
-samples_info_path = "/Users/asilvert/Programmation/Doridot/doridot-sncell/pipeline/outputs/pouloup.tsv"
-output = "blaaaah"
-filterthreshold= c(20, 200)
-
-
-samples_informations = fread(samples_info_path, header = TRUE)
-print(samples_informations)
+samples_informations = read.delim(samples_info_path)
 
 ### Load filtered data ###
+print(rds_file_path)
+seurat_object = readRDS(rds_file_path)
 
-barcode.path <- paste(samples_informations$path_to_mtx_filtered_directory[1], "barcodes.tsv.gz", sep="")
-feature.path <- paste(samples_informations$path_to_mtx_filtered_directory[1], "features.tsv.gz", sep="")
-matrix.path <- paste(samples_informations$path_to_mtx_filtered_directory[1], "matrix.mtx.gz", sep="")
+seurat_object <- NormalizeData(seurat_object, assay = "HTO", normalization.method = "CLR")
+seurat_object <- HTODemux(seurat_object, assay = "HTO", positive.quantile = 0.99)
 
-print(barcode.path)
-print(matrix.path)
-
-#Loading data
-expression_matrix <- ReadMtx(
-  mtx = matrix.path, features = feature.path,
-  cells = barcode.path
-)
-
-expression_matrix_HTO = expression_matrix[samples_informations$sample_name,]
-expression_matrix_RNA = expression_matrix[!(rownames(expression_matrix) %in% samples_informations$sample_name),]
-
-seurat_object = CreateSeuratObject(counts = expression_matrix_RNA)
-
-seurat_object[["HTO"]] <- CreateAssayObject(counts = expression_matrix_HTO)
+### Change Idents to the correct names ###
+new_names = samples_informations$sample_code
+names(new_names) = samples_informations$sample_name
+seurat_object <- RenameIdents(seurat_object, new_names)
 
 
 
-#We'll try No and With filters to check
-NF_seurat = seurat_object
-NF_seurat <- NormalizeData(NF_seurat, assay = "HTO", normalization.method = "CLR")
-NF_seurat <- HTODemux(NF_seurat, assay = "HTO", positive.quantile = 0.99)
+### Output DEMUX statistics ###
+table_statistics <-
+  seurat_object@meta.data %>%
+  select(hash.ID) %>%
+  table
 
-table(NF_seurat$HTO_classification.global)
-FeatureScatter(NF_seurat, feature1 = "hto_2-2", feature2 = "hto_5-2")
-HTOHeatmap(NF_seurat, assay = "HTO", ncells = 5000)
+write.table(table_statistics, file.path(outputDirectory, "number_cells_per_HTO.txt"))
+
+### Output QC per sample and negative and doublets ###
+plotQCs <- function(sampleName, srtObject, outputDir){
+  data_to_print = srtObject@meta.data
+  data_to_print <- data_to_print %>%
+      filter(hash.ID == sampleName)
+  p <- ggplot(data_to_print, aes(y = nCount_RNA, x = "nCount_RNA"))
+  p <- p + theme_bw()
+  p <- p + xlab(sampleName)
+  p <- p + geom_violin(fill = "#F07DEA", color = NA)
+  p <- p + geom_jitter( width = 0.5, alpha = 0.1, size = 0.5)
+  p <- p + theme(
+          axis.text.x=element_blank(),
+          axis.ticks.x=element_blank())
+
+  pdf(file.path(outputDir, paste("nCount_postFilters_", sampleName, ".pdf", sep="")), width = 3, height = 5)
+  print(p)
+  dev.off()
+
+  p <- ggplot(data_to_print, aes(y = nFeature_RNA, x = "nFeature_RNA"))
+  p <- p + theme_bw()
+  p <- p + xlab(sampleName)
+  p <- p + geom_violin(fill = "#AF0171", color = NA)
+  p <- p + geom_jitter( width = 0.5, alpha = 0.1, size = 0.5)
+  p <- p + theme(
+          axis.text.x=element_blank(),
+          axis.ticks.x=element_blank())
+
+  pdf(file.path(outputDir, paste("nFeature_postFilters_", sampleName, ".pdf", sep="")), width = 3, height = 5)
+  print(p)
+  dev.off()
 
 
-write.table(NF_seurat@meta.data[, c("HTO_classification", "HTO_classification.global")], file = "no_filters_classification.tsv", sep="\t", quote = F)
+  p <- ggplot(data_to_print, aes(y = percent.mt, x = "percent.mt"))
+  p <- p + theme_bw()
+  p <- p + xlab(sampleName)
+  p <- p + geom_violin(fill = "#7FB77E", color = NA)
+  p <- p + geom_jitter( width = 0.5, alpha = 0.1, size = 0.5)
+  p <- p + theme(
+          axis.text.x=element_blank(),
+          axis.ticks.x=element_blank())
+
+  pdf(file.path(outputDir, paste("percent_mithochondrial_postFilters_", sampleName, ".pdf", sep="")), width = 3, height = 5)
+  print(p)
+  dev.off()
+
+  p <- ggplot(data_to_print, aes(x = nCount_RNA, y = nFeature_RNA))
+  p <- p + theme_bw()
+  p <- p + geom_point(color = "#A460ED")
 
 
-#With Filters
-YF_seurat = seurat_object
-YF_seurat[["percent.mt"]] <- PercentageFeatureSet(YF_seurat, pattern = "^mt-")
+  pdf(file.path(outputDir, paste("nCount_nFeature_comparison_postFilters_", sampleName, ".pdf", sep="")), width = 5, height = 5)
+  print(p)
+  dev.off()
+}
 
-YF_seurat <- subset(YF_seurat, subset = nFeature_RNA > 800 & nFeature_RNA < 7500 & percent.mt < 5)
-VlnPlot(YF_seurat, features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), ncol = 3)
-YF_seurat <- NormalizeData(YF_seurat, assay = "HTO", normalization.method = "CLR")
-YF_seurat <- HTODemux(YF_seurat, assay = "HTO", positive.quantile = 0.99)
-
-table(YF_seurat$HTO_classification.global)
-FeatureScatter(YF_seurat, feature1 = "hto_2-2", feature2 = "hto_5-2")
-HTOHeatmap(YF_seurat, assay = "HTO", ncells = 5000)
-
-write.table(YF_seurat@meta.data[, c("HTO_classification", "HTO_classification.global")], file = "filters_classification.tsv", sep="\t", quote = F)
+lapply(samples_informations$sample_name, plotQCs, srtObject = seurat_object, outputDir = outputDirectory)
 
 
-#GetAssayData(object = YF_seurat, slot = "data", assay = "HTO")
+### Calculate a tSNE embedding of the HTO data
 
-# mat <- readMM(file = matrix.path)
-# feature.names = read.delim(feature.path,
-#                            header = FALSE,
-#                            stringsAsFactors = FALSE)
-# barcode.names = read.delim(barcode.path,
-#                            header = FALSE,
-#                            stringsAsFactors = FALSE)
-# colnames(mat) = barcode.names$V1
-# rownames(mat) = feature.names$V1
+
+
+seurat_object_copy <- subset(seurat_object, idents = "Negative", invert = TRUE)
+DefaultAssay(seurat_object_copy) <- "HTO"
+seurat_object_copy <- ScaleData(seurat_object_copy, features = rownames(seurat_object_copy),
+    verbose = FALSE)
+seurat_object_copy<- RunPCA(seurat_object_copy, features = rownames(seurat_object_copy), approx = FALSE)
+seurat_object_copy<- RunTSNE(seurat_object_copy, dims = 1:nrow(samples_informations), perplexity = 100, check_duplicates = FALSE)
+p <- DimPlot(seurat_object_copy)
+
+pdf(file.path(outputDirectory, "HTO_tSNE_plot.pdf"), width = 7, height = 7)
+print(p)
+dev.off()
+
+DefaultAssay(seurat_object_copy) <- "RNA"
+
+
+###Clustering of HTO
+p <- HTOHeatmap(seurat_object_copy, assay = "HTO", ncells = 500)
+
+pdf(file.path(outputDirectory, "HTO_heatmap_plot.pdf"), width = 7, height = 7)
+print(p)
+dev.off()
+
+
+### Remove cells from doublets and negative  and plot a tSNE (on a copy) ###
+seurat_object <- subset(seurat_object, idents = "Negative", invert = TRUE)
+seurat_object <- subset(seurat_object, idents = "Doublet", invert = TRUE)
+
+seurat_object_tSNE <- FindVariableFeatures(seurat_object)
+seurat_object_tSNE <- ScaleData(seurat_object_tSNE, features = VariableFeatures(seurat_object_tSNE))
+seurat_object_tSNE <- RunPCA(seurat_object_tSNE)
+seurat_object_tSNE <- RunTSNE(seurat_object_tSNE, dims = 1:5, perplexity = 100)
+p <- DimPlot(seurat_object_tSNE)
+
+pdf(file.path(outputDirectory, "RNA_tSNE_plot.pdf"), width = 7, height = 7)
+print(p)
+dev.off()
+
+### Save results ### 
+saveRDS(seurat_object, file = output)

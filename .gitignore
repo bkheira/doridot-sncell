@@ -4,7 +4,7 @@ PersonalNotes/
 data/
 outputs/
 demultiplexing_comparison/
-
+samples_info.tsv
 *.snakemake
 
 #### Automated part ####
