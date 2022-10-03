@@ -10,6 +10,5 @@ MAX_FEATURES_PER_DROPLET: 10000
 MAX_PERCENT_MT_READS: 10
 SPECIE: "Mouse" #Human or Mouse, Used to detect mithochondrial DNA
 
-## MULTIPLEXING STEP ##
-
-MULTIPLEXING: True #Must be True if you're using multiplexing, False otherwise
+## Normalisation ##
+CELL_CYCLE_MARKERS_PATH: "/Users/asilvert/Programmation/Doridot/doridot-sncell/data/cell_cycle_markers_mmusc.rds"
