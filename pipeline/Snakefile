@@ -27,8 +27,6 @@ rule preparing_pipeline:
     output:
         os.path.join(config["OUTPUT_DIRECTORY"], "{multiplexing_group}.tsv"),
     run:
-
-
         temp = samples_info[
             samples_info.multiplexing_group_name == wildcards.multiplexing_group
         ]
