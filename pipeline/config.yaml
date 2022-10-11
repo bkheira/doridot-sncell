@@ -1,0 +1,14 @@
+OUTPUT_DIRECTORY: outputs/
+
+SAMPLES_INFORMATIONS_PATH: "/Users/asilvert/Programmation/Doridot/doridot-sncell/samples_info.tsv"
+
+## QUALITY CONTROL ##
+MIN_RNA_PER_DROPLET: 2000
+MAX_RNA_PER_DROPLET: 30000
+MIN_FEATURES_PER_DROPLET: 500
+MAX_FEATURES_PER_DROPLET: 10000
+MAX_PERCENT_MT_READS: 10
+SPECIE: "Mouse" #Human or Mouse, Used to detect mithochondrial DNA
+
+## Normalisation ##
+CELL_CYCLE_MARKERS_PATH: "/Users/asilvert/Programmation/Doridot/doridot-sncell/data/cell_cycle_markers_mmusc.rds"

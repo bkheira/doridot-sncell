@@ -1,0 +1,152 @@
+import pandas as pd
+
+
+configfile: "config.yaml"
+
+
+## TODO INSERT HERE A CONTROL OF THE CONFIG FILE
+## TODO INSERT HERE A CONTROL OF THE SAMPLE_INFORMATIONS
+
+samples_info = pd.read_csv(config["SAMPLES_INFORMATIONS_PATH"], sep="\t")
+multiplexing_groups = samples_info.multiplexing_group_name.unique().tolist()
+
+
+## QC IS NEEDED BEFORE MULTIPLEXING
+
+
+rule all:
+    input:
+        os.path.join(
+            config["OUTPUT_DIRECTORY"],
+            "Integration",
+            "out.log"
+        )
+
+
+rule preparing_pipeline:
+    output:
+        os.path.join(config["OUTPUT_DIRECTORY"], "{multiplexing_group}.tsv"),
+    run:
+        temp = samples_info[
+            samples_info.multiplexing_group_name == wildcards.multiplexing_group
+        ]
+
+        temp.to_csv(output[0], sep="\t")
+
+
+rule quality_control:
+    input:
+        os.path.join(config["OUTPUT_DIRECTORY"], "{multiplexing_group}.tsv"),
+    output:
+        dir=directory(
+            os.path.join(config["OUTPUT_DIRECTORY"], "QC", "{multiplexing_group}")
+        ),
+        file=os.path.join(
+            config["OUTPUT_DIRECTORY"],
+            "QC",
+            "{multiplexing_group}",
+            "{multiplexing_group}_PostQC.rds",
+        ),
+
+    log :
+        os.path.join(
+            config["OUTPUT_DIRECTORY"],
+            "{multiplexing_group}_PostQC.log",
+        ),
+    shell:
+        "Rscript rules/qualityControl.R {input} {output.file} {config[MIN_RNA_PER_DROPLET]} {config[MAX_RNA_PER_DROPLET]} {config[MIN_FEATURES_PER_DROPLET]} {config[MAX_FEATURES_PER_DROPLET]} {config[MAX_PERCENT_MT_READS]} {config[SPECIE]} {output.dir} >& {log}"
+
+
+rule demultiplexing:
+    input:
+        sampleinfo=os.path.join(config["OUTPUT_DIRECTORY"], "{multiplexing_group}.tsv"),
+        rdsfile=os.path.join(
+            config["OUTPUT_DIRECTORY"],
+            "QC",
+            "{multiplexing_group}",
+            "{multiplexing_group}_PostQC.rds",
+        ),
+    output:
+        dir=directory(
+            os.path.join(
+                config["OUTPUT_DIRECTORY"], "Demultiplexing", "{multiplexing_group}"
+            )
+        ),
+        file=os.path.join(
+            config["OUTPUT_DIRECTORY"],
+            "Demultiplexing",
+            "{multiplexing_group}",
+            "{multiplexing_group}_postQC_postDemultiplexing.rds",
+        ),
+        log=os.path.join(
+            config["OUTPUT_DIRECTORY"],
+            "Demultiplexing",
+            "{multiplexing_group}",
+            "{multiplexing_group}_postQC_postDemultiplexing.log",
+        ),
+
+    params:
+        outputDir=os.path.join(
+            config["OUTPUT_DIRECTORY"], "Demultiplexing", "{multiplexing_group}"
+        ),
+    shell:
+        "Rscript rules/demultiplexing.R {input.rdsfile} {input.sampleinfo} {output.file} {params.outputDir} >& {output.log}"
+
+rule normalisation:
+    input:
+        sampleinfo=os.path.join(config["OUTPUT_DIRECTORY"], "{multiplexing_group}.tsv"),
+        seuratRDS=os.path.join(
+            config["OUTPUT_DIRECTORY"],
+            "Demultiplexing",
+            "{multiplexing_group}",
+            "{multiplexing_group}_postQC_postDemultiplexing.rds",
+        ),
+        cellCycleMarkersPath=config["CELL_CYCLE_MARKERS_PATH"],
+    output:
+        outputDir=directory(
+                  os.path.join(
+                    config["OUTPUT_DIRECTORY"], "Normalisation",
+                    "{multiplexing_group}"
+                  )
+        ),
+        file=os.path.join(
+            config["OUTPUT_DIRECTORY"],
+            "Normalisation", "{multiplexing_group}",
+            "{multiplexing_group}_postQC_postDemultiplexing_postNormalisation.rds"
+        ),
+        log=os.path.join(
+            config["OUTPUT_DIRECTORY"],
+            "Normalisation", "{multiplexing_group}",
+            "postQC_postDemultiplexing_postNormalisation.log"
+        ),
+
+    shell:
+        "Rscript rules/normalisation.R {input.seuratRDS} {input.sampleinfo} {output.file} {input.cellCycleMarkersPath} >& {output.log} "
+
+rule integration:
+    input:
+        samplesinfo=config["SAMPLES_INFORMATIONS_PATH"],
+        seuratRDSs=expand( os.path.join(
+            config["OUTPUT_DIRECTORY"],
+            "Normalisation", "{multiplexing_group}",
+            "{multiplexing_group}_postQC_postDemultiplexing_postNormalisation.rds"
+        ), multiplexing_group = multiplexing_groups),
+    output :
+        outputDir=directory(
+            os.path.join(
+                config["OUTPUT_DIRECTORY"],
+                "Integration"
+                )
+        ),
+        outFile=os.path.join(
+            config["OUTPUT_DIRECTORY"],
+            "Integration",
+            "IntegratedFile.rds"
+        ),
+        log = os.path.join(
+            config["OUTPUT_DIRECTORY"],
+            "Integration",
+            "out.log"
+        ),
+    shell:
+        "Rscript rules/integration.R {input.samplesinfo} {output.outFile} {input.seuratRDSs} >& {output.log}"
