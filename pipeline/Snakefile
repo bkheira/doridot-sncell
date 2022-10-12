@@ -18,9 +18,9 @@ rule all:
     input:
         os.path.join(
             config["OUTPUT_DIRECTORY"],
-            "Integration",
-            "out.log"
-        )
+            "Clustering",
+            "clusteredFiles.rds"
+            )
 
 
 rule preparing_pipeline:
@@ -132,7 +132,7 @@ rule integration:
             "{multiplexing_group}_postQC_postDemultiplexing_postNormalisation.rds"
         ), multiplexing_group = multiplexing_groups),
     output :
-        outputDir=directory(
+        dir=directory(
             os.path.join(
                 config["OUTPUT_DIRECTORY"],
                 "Integration"
@@ -149,4 +149,32 @@ rule integration:
             "out.log"
         ),
     shell:
-        "Rscript rules/integration.R {input.samplesinfo} {output.outFile} {input.seuratRDSs} >& {output.log}"
+        "Rscript rules/integration.R {input.samplesinfo} {output.outFile} {output.dir} {input.seuratRDSs} >& {output.log}"
+
+rule clustering:
+    input:
+        RDSfile=os.path.join(
+            config["OUTPUT_DIRECTORY"],
+            "Integration",
+            "IntegratedFile.rds"
+        ),
+    output:
+        dir=directory(
+            os.path.join(
+                config["OUTPUT_DIRECTORY"],
+                "Clustering"
+                )
+        ),
+        outFile=os.path.join(
+            config["OUTPUT_DIRECTORY"],
+            "Clustering",
+            "clusteredFiles.rds"
+            ),
+        log=os.path.join(
+            config["OUTPUT_DIRECTORY"],
+            "Clustering",
+            "out.log"
+        ),
+    threads: 4
+    shell:
+        "Rscript rules/clustering.R {input.RDSfile} {output.outFile} {output.dir} >& {output.log}"
