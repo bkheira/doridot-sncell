@@ -150,3 +150,31 @@ rule integration:
         ),
     shell:
         "Rscript rules/integration.R {input.samplesinfo} {output.outFile} {input.seuratRDSs} >& {output.log}"
+
+rule clustering:
+    input:
+        RDSfile=os.path.join(
+            config["OUTPUT_DIRECTORY"],
+            "Integration",
+            "IntegratedFile.rds"
+        ),
+    output:
+        outputDir=directory(
+            os.path.join(
+                config["OUTPUT_DIRECTORY"],
+                "Clustering"
+                )
+        ),
+        outFile=os.path.join(
+            config["OUTPUT_DIRECTORY"],
+            "Clustering",
+            "clusteredFiles.rds"
+            )
+    log:
+        os.path.join(
+            config["OUTPUT_DIRECTORY"],
+            "Clustering",
+            "out.log"
+        ),
+    shell:
+        "Rscript rules/clustering.R {input.RDSfile} {output.outFile} {output.outDir} >& {log}"
