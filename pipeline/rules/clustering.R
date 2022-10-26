@@ -26,11 +26,19 @@ outputDirectory = args[3]
 ###Loading data
 seurat_file = readRDS(rds_file_path)
 
+###Normalisation of data###
+seurat_file = SCTransform(seurat_file, vars.to.regress = c("percent.mt", "G2M.Score", "S.Score"))
+
 
 ###Clustering###
 #We will follow the Seurat default
+seurat_file <- RunPCA(seurat_file)
 seurat_file <- FindNeighbors(seurat_file)
+seurat_file <- RunUMAP(seurat_file, dims = 1:10, future.seed=TRUE)
+
 seurat_file <- FindClusters(seurat_file, future.seed=TRUE)
+
+
 
 ###Print UMAP of Clusters###
 pdf(file.path(outputDirectory, "UMAP_clusterisation.pdf"),

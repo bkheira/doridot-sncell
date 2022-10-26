@@ -3,7 +3,3 @@ sample_name	sample_code	path_to_mtx_filtered_directory	path_to_mtx_raw_directory
 2-3	2_3a	../data/CtrlCBA-2Bis/filtered/	../data/CtrlCBA-2Bis/raw/	pouloup
 5-2	5_2a	../data/CtrlCBA-2Bis/filtered/	../data/CtrlCBA-2Bis/raw/	pouloup
 5-5	5_5a	../data/CtrlCBA-2Bis/filtered/	../data/CtrlCBA-2Bis/raw/	pouloup
-2-2	2_2a	../data/CtrlCBA-2Bis/filtered/	../data/CtrlCBA-2Bis/raw/	test
-2-3	2_3a	../data/CtrlCBA-2Bis/filtered/	../data/CtrlCBA-2Bis/raw/	test
-5-2	5_2a	../data/CtrlCBA-2Bis/filtered/	../data/CtrlCBA-2Bis/raw/	test
-5-5	5_5a	../data/CtrlCBA-2Bis/filtered/	../data/CtrlCBA-2Bis/raw/	test

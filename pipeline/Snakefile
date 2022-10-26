@@ -16,11 +16,13 @@ multiplexing_groups = samples_info.multiplexing_group_name.unique().tolist()
 
 rule all:
     input:
-        os.path.join(
+        outFile=os.path.join(
             config["OUTPUT_DIRECTORY"],
             "Clustering",
-            "clusteredFiles.rds"
-            )
+
+            "ClusteredFile.rds"
+        )
+
 
 
 rule preparing_pipeline:
@@ -149,17 +151,21 @@ rule integration:
             "out.log"
         ),
     shell:
-        "Rscript rules/integration.R {input.samplesinfo} {output.outFile} {output.dir} {input.seuratRDSs} >& {output.log}"
+
+        "Rscript rules/integration.R {input.samplesinfo} {output.outFile} {input.seuratRDSs} >& {output.log}"
 
 rule clustering:
     input:
-        RDSfile=os.path.join(
+        rdsFile=os.path.join(
+
             config["OUTPUT_DIRECTORY"],
             "Integration",
             "IntegratedFile.rds"
         ),
     output:
-        dir=directory(
+
+        outputDir=directory(
+
             os.path.join(
                 config["OUTPUT_DIRECTORY"],
                 "Clustering"
@@ -168,13 +174,17 @@ rule clustering:
         outFile=os.path.join(
             config["OUTPUT_DIRECTORY"],
             "Clustering",
-            "clusteredFiles.rds"
-            ),
-        log=os.path.join(
+
+            "ClusteredFile.rds"
+        ),
+        log = os.path.join(
+
             config["OUTPUT_DIRECTORY"],
             "Clustering",
             "out.log"
         ),
     threads: 4
     shell:
-        "Rscript rules/clustering.R {input.RDSfile} {output.outFile} {output.dir} >& {output.log}"
+
+        "Rscript rules/clustering.R {input.rdsFile} {output.outFile} {output.outputDir} >& {output.log}"
+
