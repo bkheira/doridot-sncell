@@ -10,5 +10,8 @@ MAX_FEATURES_PER_DROPLET: 10000
 MAX_PERCENT_MT_READS: 10
 SPECIE: "Mouse" #Human or Mouse, Used to detect mithochondrial DNA
 
-## Normalisation ##
+## NORMALISATION ##
 CELL_CYCLE_MARKERS_PATH: "/Users/asilvert/Programmation/Doridot/doridot-sncell/data/cell_cycle_markers_mmusc.rds"
+
+## PARALLELISATION ##
+MEMORY_PER_JOB: 20 #Memory to ask for each job step (in Gb)
