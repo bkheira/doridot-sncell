@@ -49,4 +49,4 @@ echo 'PATH:'
 echo $PATH
 echo '########################################'
 
-snakemake --cluster "sbatch -c {threads} --mem={resources.mem_gb}G" --use-conda
+snakemake --cluster "sbatch -c {threads} --mem={resources.mem_gb}G" --use-conda --jobs=2 -c4

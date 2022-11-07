@@ -28,8 +28,8 @@ rule all:
 rule preparing_pipeline:
     output:
         os.path.join(config["OUTPUT_DIRECTORY"], "{multiplexing_group}.tsv"),
-    conda:
-        "/shared/ifbstor1/projects/placentatlas/pipeline/conda_env"
+    resources:
+        mem_gb=config["MEMORY_PER_JOB"],
     run:
         temp = samples_info[
             samples_info.multiplexing_group_name == wildcards.multiplexing_group
@@ -60,7 +60,7 @@ rule quality_control:
     resources:
         mem_gb=config["MEMORY_PER_JOB"],
     conda:
-        "/shared/ifbstor1/projects/placentatlas/pipeline/conda_env"
+        "/shared/ifbstor1/projects/placentatlas/pipeline/conda.yaml"
     shell:
         "Rscript rules/qualityControl.R {input} {output.file} {config[MIN_RNA_PER_DROPLET]} {config[MAX_RNA_PER_DROPLET]} {config[MIN_FEATURES_PER_DROPLET]} {config[MAX_FEATURES_PER_DROPLET]} {config[MAX_PERCENT_MT_READS]} {config[SPECIE]} {output.dir} >& {log}"
 
@@ -100,7 +100,7 @@ rule demultiplexing:
     resources:
         mem_gb=config["MEMORY_PER_JOB"]
     conda:
-        "/shared/ifbstor1/projects/placentatlas/pipeline/conda_env"
+        "/shared/ifbstor1/projects/placentatlas/pipeline/conda.yaml"
     shell:
         "Rscript rules/demultiplexing.R {input.rdsfile} {input.sampleinfo} {output.file} {params.outputDir} >& {output.log}"
 
@@ -134,7 +134,7 @@ rule normalisation:
     resources:
         mem_gb=config["MEMORY_PER_JOB"],
     conda:
-        "/shared/ifbstor1/projects/placentatlas/pipeline/conda_env"
+        "/shared/ifbstor1/projects/placentatlas/pipeline/conda.yaml"
 
     shell:
         "Rscript rules/normalisation.R {input.seuratRDS} {input.sampleinfo} {output.file} {input.cellCycleMarkersPath} >& {output.log} "
@@ -167,7 +167,7 @@ rule integration:
     resources:
         mem_gb=config["MEMORY_PER_JOB"],
     conda:
-        "/shared/ifbstor1/projects/placentatlas/pipeline/conda_env"
+        "/shared/ifbstor1/projects/placentatlas/pipeline/conda.yaml"
     shell:
         "Rscript rules/integration.R {input.samplesinfo} {output.outFile} {output.dir} {input.seuratRDSs} >& {output.log}"
 
@@ -203,6 +203,6 @@ rule clustering:
     resources:
         mem_gb=config["MEMORY_PER_JOB"],
     conda:
-        "/shared/ifbstor1/projects/placentatlas/pipeline/conda_env"
+        "/shared/ifbstor1/projects/placentatlas/pipeline/conda.yaml"
     shell:
         "Rscript rules/clustering.R {input.rdsFile} {output.outFile} {output.outputDir} >& {output.log}"
