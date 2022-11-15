@@ -6,3 +6,4 @@ As those steps have to be experimented with, we encourage users to personnalise 
 Currently being worked on by Alix and Kheira
 
 Kheira teste la modification sur Sublime Text avec Github Desktop.
+Kheira teste la modification et le commit directement sur Sublime Text.
