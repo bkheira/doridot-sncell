@@ -33,8 +33,8 @@ seurat_object <- HTODemux(seurat_object,
 
 ### Change Idents to the correct names
 ### ###
-new_names = samples_informations$sample_code
-names(new_names) = samples_informations$sample_name
+new_names = samples_informations$sample_name
+names(new_names) = samples_informations$sample_code
 seurat_object <- RenameIdents(seurat_object,
     new_names)
 
@@ -120,7 +120,7 @@ plotQCs <- function(sampleName, srtObject,
     dev.off()
 }
 
-lapply(samples_informations$sample_name,
+lapply(samples_informations$sample_code,
     plotQCs, srtObject = seurat_object, outputDir = outputDirectory)
 
 

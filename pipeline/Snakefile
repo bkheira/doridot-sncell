@@ -27,7 +27,7 @@ rule all:
 
 rule preparing_pipeline:
     output:
-        os.path.join(config["OUTPUT_DIRECTORY"], "{multiplexing_group}.tsv"),
+        temp(os.path.join(config["OUTPUT_DIRECTORY"], "{multiplexing_group}.tsv")),
     resources:
         mem_gb=config["MEMORY_PER_JOB"],
     run:
@@ -55,6 +55,8 @@ rule quality_control:
     log :
         os.path.join(
             config["OUTPUT_DIRECTORY"],
+            "QC",
+            "{multiplexing_group}",
             "{multiplexing_group}_PostQC.log",
         ),
     resources:

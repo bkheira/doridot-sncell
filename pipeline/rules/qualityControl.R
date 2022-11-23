@@ -43,10 +43,10 @@ matrix.path <- paste(samples_informations$path_to_mtx_filtered_directory[1],
 expression_matrix <- ReadMtx(mtx = matrix.path,
     features = feature.path, cells = barcode.path)
 
-expression_matrix_HTO = expression_matrix[samples_informations$sample_name,
+expression_matrix_HTO = expression_matrix[samples_informations$sample_code,
     ]
 expression_matrix_RNA = expression_matrix[!(rownames(expression_matrix) %in%
-    samples_informations$sample_name), ]
+    samples_informations$sample_code), ]
 
 seurat_object = CreateSeuratObject(counts = expression_matrix_RNA)
 seurat_object[["HTO"]] <- CreateAssayObject(counts = expression_matrix_HTO)

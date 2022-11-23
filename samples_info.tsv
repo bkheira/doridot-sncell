@@ -1,5 +1,5 @@
-sample_name	sample_code	path_to_mtx_filtered_directory	path_to_mtx_raw_directory	multiplexing_group_name
-2-2	2_2a	/shared/projects/placentatlas/CellRangerHashtagSnRNAseqCBA/CtrlCBA-2Bis/outs/filtered_feature_bc_matrix/	../data/CtrlCBA-2Bis/raw/	pouloup
-2-3	2_3a	/shared/projects/placentatlas/CellRangerHashtagSnRNAseqCBA/CtrlCBA-2Bis/outs/filtered_feature_bc_matrix/	../data/CtrlCBA-2Bis/raw/	pouloup
-5-2	5_2a	/shared/projects/placentatlas/CellRangerHashtagSnRNAseqCBA/CtrlCBA-2Bis/outs/filtered_feature_bc_matrix/	../data/CtrlCBA-2Bis/raw/	pouloup
-5-5	5_5a	/shared/projects/placentatlas/CellRangerHashtagSnRNAseqCBA/CtrlCBA-2Bis/outs/filtered_feature_bc_matrix/	../data/CtrlCBA-2Bis/raw/	pouloup
+sample_code	sample_name	path_to_mtx_filtered_directory	multiplexing_group_name
+2-2	bloup2_2	/Users/asilvert/Programmation/Doridot/doridot-sncell/data/CtrlCBA-2Bis/filtered/	pouloup
+2-3	blap2_3a	/Users/asilvert/Programmation/Doridot/doridot-sncell/data/CtrlCBA-2Bis/filtered/	pouloup
+5-2	blip5_2a	/Users/asilvert/Programmation/Doridot/doridot-sncell/data/CtrlCBA-2Bis/filtered/	pouloup
+5-5	blop5_5a	/Users/asilvert/Programmation/Doridot/doridot-sncell/data/CtrlCBA-2Bis/filtered/	pouloup
