@@ -33,6 +33,9 @@ pdf(file.path(outputDir, "UMAP_postIntegration.pdf"),
 print(DimPlot(integrated_data))
 dev.off()
 
-
+pdf(file.path(outputDir, "UMAP_postIntegration_byOrigin.pdf"),
+    width = 5, height = 5)
+print(DimPlot(integrated_data, split.by = "orig.ident"))
+dev.off()
 
 saveRDS(integrated_data, file = output)

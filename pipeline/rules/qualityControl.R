@@ -48,7 +48,8 @@ expression_matrix_HTO = expression_matrix[samples_informations$sample_code,
 expression_matrix_RNA = expression_matrix[!(rownames(expression_matrix) %in%
     samples_informations$sample_code), ]
 
-seurat_object = CreateSeuratObject(counts = expression_matrix_RNA)
+seurat_object = CreateSeuratObject(counts = expression_matrix_RNA,
+                                  project = samples_informations$multiplexing_group_name[1])
 seurat_object[["HTO"]] <- CreateAssayObject(counts = expression_matrix_HTO)
 
 ################## RUN THE QC ###
