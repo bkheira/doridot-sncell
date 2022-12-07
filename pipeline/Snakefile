@@ -13,6 +13,8 @@ multiplexing_groups = samples_info.multiplexing_group_name.unique().tolist()
 
 ## QC IS NEEDED BEFORE MULTIPLEXING
 
+def get_mem_gb(wildcards, attempt):
+    return config["MEMORY_PER_JOB"] * attempt
 
 rule all:
     input:
@@ -60,7 +62,7 @@ rule quality_control:
             "{multiplexing_group}_PostQC.log",
         ),
     resources:
-        mem_gb=config["MEMORY_PER_JOB"],
+        mem_gb=get_mem_gb,
     conda:
         "/shared/ifbstor1/projects/placentatlas/pipeline/conda.yaml"
     shell:
@@ -100,7 +102,7 @@ rule demultiplexing:
             config["OUTPUT_DIRECTORY"], "Demultiplexing", "{multiplexing_group}"
         ),
     resources:
-        mem_gb=config["MEMORY_PER_JOB"]
+        mem_gb=get_mem_gb
     conda:
         "/shared/ifbstor1/projects/placentatlas/pipeline/conda.yaml"
     shell:
@@ -134,7 +136,7 @@ rule normalisation:
             "postQC_postDemultiplexing_postNormalisation.log"
         ),
     resources:
-        mem_gb=config["MEMORY_PER_JOB"],
+        mem_gb=get_mem_gb,
     conda:
         "/shared/ifbstor1/projects/placentatlas/pipeline/conda.yaml"
 
@@ -167,7 +169,7 @@ rule integration:
             "out.log"
         ),
     resources:
-        mem_gb=config["MEMORY_PER_JOB"],
+        mem_gb=get_mem_gb,
     conda:
         "/shared/ifbstor1/projects/placentatlas/pipeline/conda.yaml"
     shell:
@@ -203,7 +205,7 @@ rule clustering:
         ),
     threads: 4
     resources:
-        mem_gb=config["MEMORY_PER_JOB"],
+        mem_gb=get_mem_gb,
     conda:
         "/shared/ifbstor1/projects/placentatlas/pipeline/conda.yaml"
     shell:
