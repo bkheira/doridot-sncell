@@ -143,6 +143,9 @@ pdf(file.path(OUTPUT_DIRECTORY, "nCout_nFeatures_comparison_preFilters.pdf"),
 print(p)
 dev.off()
 
+##Getting the number of cells before the filtering
+ncells_prefilter = nrow(seurat_object[[]])
+
 ## Actually running the filters
 seurat_object <- subset(seurat_object, subset = nCount_RNA >
     MIN_RNA_PER_DROPLET & nCount_RNA < MAX_RNA_PER_DROPLET)
@@ -151,6 +154,10 @@ seurat_object <- subset(seurat_object, subset = nFeature_RNA >
     MAX_FEATURES_PER_DROPLET)
 seurat_object <- subset(seurat_object, subset = percent.mt <
     MAX_PERCENT_MT_READS)
+
+##Getting the number of cells after the filtering
+ncells_postfilter = nrow(seurat_object[[]])
+
 
 # Printing the rest
 data_to_print = seurat_object@meta.data
@@ -218,6 +225,15 @@ pdf(file.path(OUTPUT_DIRECTORY, "nCout_nFeatures_comparison_postFilters.pdf"),
     width = 5, height = 5)
 print(p)
 dev.off()
+
+
+##Writting log
+fileConn<-file(file.path(OUTPUT_DIRECTORY, "number_cell_filtered.txt"))
+writeLines(c(paste("Number of cells pre-filtering :", ncells_prefilter),
+              paste("Number of cells post-filtering :", ncells_postfilter),
+              paste("Ratio of cells filtered :", (ncells_prefilter -ncells_postfilter )/ncells_prefilter)),
+              fileConn)
+close(fileConn)
 
 ## Save the Rds file
 saveRDS(seurat_object, file = output)
